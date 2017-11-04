@@ -36,3 +36,70 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+
+$(document).ready(function(){
+    var step = null;
+    var rotate = {
+        transform: "rotateY(180deg)",
+        backgroundColor:"#02b3e4"
+    };
+    var backRotate = {
+        transform: "rotateY(0deg)",
+        backgroundColor:"#2e3d49"
+    };
+    
+    var clickedCard = [];
+    //卡片点击事件
+    $(".card").click(function(){
+        //判断点击的卡片是否为已经匹配成功的
+        if($(this).hasClass("match")){
+            return false
+        }
+
+
+        if($(".open").length==0){
+            clickedCard.push($(this).find("i").attr("class"));
+            $(this).css(rotate).addClass("open");
+            step++;
+            $(".moves").text(step);
+        }else if($(".open").length==1){
+            clickedCard.push($(this).find("i").attr("class"));            
+            $(this).css(rotate).addClass("open");
+            step++;
+            $(".moves").text(step);          
+            setTimeout(compare,400);
+        }else{
+            return false;
+        }
+        
+        //TODO 根据步数改变星数
+    });
+
+
+    //比较函数，根据类名判断是否为同一图标
+    function compare(){
+        if(clickedCard[0]==clickedCard[1]){
+            $(".open").css("backgroundColor","#02ccba").addClass("match").removeClass("open");
+            clickedCard =[];
+            if($(".match").length==16){
+                //TODO 成功弹窗
+                alert("sucess")
+            }
+        }else{
+            $(".open").css(backRotate).removeClass("open");
+            clickedCard =[]
+            
+        }
+    }
+
+    //初始化函数
+    function init(){
+
+    }
+   
+    //日志打印函数
+    function log(name,obj){
+        console.log(name)
+        console.log(obj)
+    }
+  });

@@ -52,6 +52,8 @@ h1 {
 }
 
 .deck .card {
+    transition-property: background,transform;
+    transition-duration:0.4s;
     height: 125px;
     width: 125px;
     background: #2e3d49;
@@ -66,12 +68,13 @@ h1 {
 }
 
 .deck .card.open {
-    transform: rotateY(0);
+    font-size: 33px;    
     background: #02b3e4;
     cursor: default;
 }
 
 .deck .card.show {
+    background: #02b3e4;    
     font-size: 33px;
 }
 
