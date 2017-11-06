@@ -72,7 +72,15 @@ $(document).ready(function(){
             return false;
         }
         
-        //TODO 根据步数改变星数
+        if(step<20){
+
+        }else  if(step>=20&&step<30){
+            $(".fa-star").eq(2).hide()
+        }else  if(step>=30&&step<40){
+            $(".fa-star").eq(1).hide()
+        }else {
+            $(".fa-star").eq(0).hide()
+        }
     });
 
 
@@ -82,8 +90,7 @@ $(document).ready(function(){
             $(".open").css("backgroundColor","#02ccba").addClass("match").removeClass("open");
             clickedCard =[];
             if($(".match").length==16){
-                //TODO 成功弹窗
-                alert("sucess")
+                complete()
             }
         }else{
             $(".open").css(backRotate).removeClass("open");
@@ -92,9 +99,13 @@ $(document).ready(function(){
         }
     }
 
+    //完成后弹出得分榜，得分榜数据从localshortage中获得
+    function complete() {
+        $("##mask").css("display","block")
+    }
     //初始化函数
     function init(){
-
+        $("##mask").css("display","none")
     }
    
     //日志打印函数
