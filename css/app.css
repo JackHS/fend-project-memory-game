@@ -146,6 +146,10 @@ h1 {
     height: 400px;
     text-align: left;
 }
+
+#info-record p{
+    text-align: center;
+}
 #info-record ul{
     padding: 0;
 }

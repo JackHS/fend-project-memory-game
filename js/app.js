@@ -1,62 +1,33 @@
-/*
- * Create a list that holds all of your cards
- */
-
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-
-// Shuffle function from http://stackoverflow.com/a/2450976
-function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
-
-    return array;
-}
-
-
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
-
 $(document).ready(function(){
-    var step = null;
-    var rotate = {
+    var step = 0,
+        rotate = {
         transform: "rotateY(180deg)",
         backgroundColor:"#02b3e4"
-    };
-    var backRotate = {
+        },
+        backRotate = {
         transform: "rotateY(0deg)",
         backgroundColor:"#2e3d49"
-    };
-    
-    var clickedCard = [];
+        },
+        clickedCard = [];
+    //初始化页面
+    init();
+
+    //初始化按钮点击后初始化页面
+    $(".restart").on("click",function () {
+        init();
+    })
+
+    //排名弹窗确定按钮，点击后初始化页面
+    $("#info-bottom").on("click",function () {
+        init();
+    })
     //卡片点击事件
     $(".card").click(function(){
         //判断点击的卡片是否为已经匹配成功的
         if($(this).hasClass("match")){
             return false
         }
-
-
+        //根据点击展开后的卡片数量判断是否执行比较
         if($(".open").length==0){
             clickedCard.push($(this).find("i").attr("class"));
             $(this).css(rotate).addClass("open");
@@ -71,7 +42,7 @@ $(document).ready(function(){
         }else{
             return false;
         }
-        
+        //星星等级，小于20步为三星，20-30为两星，30-40为一星，大于40为0颗星
         if(step<20){
 
         }else  if(step>=20&&step<30){
@@ -94,23 +65,58 @@ $(document).ready(function(){
             }
         }else{
             $(".open").css(backRotate).removeClass("open");
-            clickedCard =[]
-            
+            clickedCard =[];
         }
     }
 
     //完成后弹出得分榜，得分榜数据从localshortage中获得
     function complete() {
-        $("##mask").css("display","block")
+        var rankArr =[],
+            rankStr = null;
+        if(!localStorage.rank){
+            rankArr.push(step)
+            localStorage.rank=rankArr;
+        }else if(localStorage.rank.split(",").length<5){
+            rankArr=localStorage.rank.split(",");
+            rankArr.push(step);
+            rankArr=rankArr.map(function (t) { return Number(t) })
+            rankArr.sort();
+            localStorage.rank=rankArr;
+        }else {
+            rankArr=localStorage.rank.split(",");
+            rankArr.push(step);
+            rankArr=rankArr.map(function (t) { return Number(t) })
+            rankArr.sort();
+            rankArr.splice(5,1);
+            localStorage.rank=rankArr
+        }
+        $(rankArr).each(function (k,v) {
+
+            rankStr +="<li><span>"+k+" .</span><span>"+v+"步</span></li>"
+        })
+        $("#info-record ul").html(rankStr)
+        $("#mask").css("display","block")
     }
     //初始化函数
     function init(){
-        $("##mask").css("display","none")
+        step=0;
+        clickedCard=[];
+        shuffle($(".card i"))
+        $("#mask").css("display","none");
     }
-   
-    //日志打印函数
-    function log(name,obj){
-        console.log(name)
-        console.log(obj)
+
+    //把一组元素的类名随机重新排列
+    function shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+            temporaryValue = array[currentIndex].className;
+            array[currentIndex].className = array[randomIndex].className;
+            array[randomIndex].className = temporaryValue;
+        }
+
+        return array;
     }
   });
