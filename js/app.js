@@ -8,7 +8,11 @@ $(document).ready(function(){
         transform: "rotateY(0deg)",
         backgroundColor:"#2e3d49"
         },
-        clickedCard = [];
+        clickedCard = [],
+        hour = 0,
+        min = 0,
+        sec = 0,
+        timeInterv = null;
     //初始化页面
     init();
 
@@ -23,6 +27,9 @@ $(document).ready(function(){
     })
     //卡片点击事件
     $(".card").click(function(){
+        if(!timeInterv){
+            timeInterv = setInterval(timer,1000);
+        }
         //判断点击的卡片是否为已经匹配成功的
         if($(this).hasClass("match")){
             return false
@@ -31,9 +38,8 @@ $(document).ready(function(){
         if($(".open").length==0){
             clickedCard.push($(this).find("i").attr("class"));
             $(this).css(rotate).addClass("open");
-            step++;
             $(".moves").text(step);
-        }else if($(".open").length==1){
+        }else if($(".open").length==1&&!$(this).hasClass("open")){
             clickedCard.push($(this).find("i").attr("class"));            
             $(this).css(rotate).addClass("open");
             step++;
@@ -42,15 +48,11 @@ $(document).ready(function(){
         }else{
             return false;
         }
-        //星星等级，小于20步为三星，20-30为两星，30-40为一星，大于40为0颗星
-        if(step<20){
-
-        }else  if(step>=20&&step<30){
-            $(".fa-star").eq(2).hide()
-        }else  if(step>=30&&step<40){
-            $(".fa-star").eq(1).hide()
-        }else {
-            $(".fa-star").eq(0).hide()
+        //星星等级，小于16步为三星，16-28为两星,大于28为1颗星
+        if(step>=16&&step<28){
+            $(".stars .fa-star").eq(2).hide()
+        }else  if(step>=28){
+            $(".stars .fa-star").eq(1).hide()
         }
     });
 
@@ -72,28 +74,53 @@ $(document).ready(function(){
     //完成后弹出得分榜，得分榜数据从localshortage中获得
     function complete() {
         var rankArr =[],
-            rankStr = null;
+            rankStr = "";
+        clearInterval(timeInterv);
+        timeInterv = null;
         if(!localStorage.rank){
             rankArr.push(step)
             localStorage.rank=rankArr;
         }else if(localStorage.rank.split(",").length<5){
             rankArr=localStorage.rank.split(",");
             rankArr.push(step);
-            rankArr=rankArr.map(function (t) { return Number(t) })
-            rankArr.sort();
+            rankArr=rankArr.map(Number)
+            rankArr.sort(function(x,y){
+                if (x < y) {
+                    return -1;
+                }
+                if (x > y) {
+                    return 1;
+                }
+                return 0;
+            });
             localStorage.rank=rankArr;
         }else {
             rankArr=localStorage.rank.split(",");
             rankArr.push(step);
-            rankArr=rankArr.map(function (t) { return Number(t) })
-            rankArr.sort();
+            rankArr=rankArr.map(Number)
+            rankArr.sort(function(x,y){
+                if (x < y) {
+                    return -1;
+                }
+                if (x > y) {
+                    return 1;
+                }
+                return 0;
+            });
             rankArr.splice(5,1);
             localStorage.rank=rankArr
         }
         $(rankArr).each(function (k,v) {
-
-            rankStr +="<li><span>"+k+" .</span><span>"+v+"步</span></li>"
+            var rankNum = k+1;
+            rankStr +="<li><span>"+rankNum+" .</span><span>"+v+"步</span></li>"
         })
+        if(step>=16&&step<28){
+            $(".record-stars .fa-star").eq(2).hide()
+        }else  if(step>=28){
+            $(".record-stars .fa-star").eq(2).hide()
+            $(".record-stars .fa-star").eq(1).hide()
+        }
+        $(".record-time").text($(".timer").text())
         $("#info-record ul").html(rankStr)
         $("#mask").css("display","block")
     }
@@ -101,8 +128,36 @@ $(document).ready(function(){
     function init(){
         step=0;
         clickedCard=[];
-        shuffle($(".card i"))
+        sec = 0;
+        min = 0;
+        hour = 0;
+        shuffle($(".card i"));
+        clearInterval(timeInterv);
+        timeInterv = null;
+        $(".timer").text("00:00:00")
+        $(".fa-star").show();
+        $(".moves").text(step);
         $("#mask").css("display","none");
+        $(".open").css(backRotate).removeClass("open");
+        $(".match").css(backRotate).removeClass("match");
+    }
+
+    //计时器
+    function timer(){
+        var h, m,s;
+        sec++
+        if(sec==60){
+            min++
+            sec=0
+        }
+        if(min==60){
+            hour++
+            min=0
+        }
+        h = hour<10?('0'+hour):(''+hour);
+        m = min<10?(':0'+min):(':'+min);
+        s = sec<10?(':0'+sec):(':'+sec);
+        $(".timer").text("耗时:"+h+m+s)
     }
 
     //把一组元素的类名随机重新排列
